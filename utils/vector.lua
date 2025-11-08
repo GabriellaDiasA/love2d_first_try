@@ -60,7 +60,7 @@ end
 ---@param v Vector
 ---@return number
 function Vector.angle(v)
-    return math.atan(v.y, v.x)
+    return math.atan(v.y / v.x)
 end
 
 ---Multiplies a vector with a number

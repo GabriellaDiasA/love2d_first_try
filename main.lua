@@ -53,6 +53,7 @@ function love.draw()
             love.graphics.clear()
         end)
         SceneRouter:draw_scene()
+        if Debug then love.graphics.draw(DebugCanvas) end
     end)
     love.graphics.draw(MainCanvas)
 end
