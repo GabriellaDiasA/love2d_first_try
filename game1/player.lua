@@ -1,13 +1,15 @@
 local Vector = require("utils.vector")
-require("global_variables")
+local Config = require("player.config")
+local Settings = require("player.settings")
+local SceneRouter = require("scene_router")
 
 ---@class Player
 ---@field input Input?
 local Player = {
-    acceleration = Vector.new(0, 0),
-    velocity = Vector.new(0, 0),
-    last_position = Vector.new(0, 0),
-    position = Vector.new(0, 0),
+    acceleration = Vector.new(),
+    velocity = Vector.new(),
+    last_position = Vector.new(),
+    position = Vector.new(),
     dimension = Vector.new(16, 16),
     boostable = true,
     time_since_last_boost = 0,
@@ -18,7 +20,7 @@ local Player = {
     input = nil,
     joystick_index = nil,
     input_mode = "controller",
-    settings = { controller_deadzone = 0.3 }
+    settings = Settings:new()
 }
 
 local Input = require("input")
@@ -44,7 +46,7 @@ end
 
 function Player:move(dt)
     local movement_input = self.input:get_movement()
-    self.acceleration = Vector.new(0, 0)
+    self.acceleration = Vector.new()
 
     self:update_acceleration(movement_input, dt)
     self:update_position()
@@ -65,9 +67,7 @@ function Player:update_acceleration(movement_input, dt)
     -- relevant input detected
     if input_magnitude > deadzone then
         local effective_input = (input_magnitude - deadzone) / (1 - deadzone) -- Normalize to 0-1
-        self.acceleration = Vector.min_scale(
-            Vector.scale(movement_input, effective_input * dt * manual_acceleration_factor),
-            MaxAcceleration)
+        self.acceleration = Vector.scale(movement_input, effective_input * dt * manual_acceleration_factor)
 
         -- Handling turning with a 0, 0 velocity vector can lead to unforseen consequences
         if Vector.magnitude(self.velocity) > 0.1 then
@@ -76,15 +76,16 @@ function Player:update_acceleration(movement_input, dt)
     end
 
     self:compute_friction(movement_input, dt)
+    self.acceleration = Vector.min_scale(self.acceleration, Config.max_acceleration)
     self:handle_boost(dt)
     self:update_velocity()
 end
 
 function Player:compute_friction(movement_input, dt)
     local speed = Vector.magnitude(self.velocity)
-    if speed > FrictionThreshold then
+    if speed > Config.friction_threshold then
         -- Dynamic friction based on input state
-        local friction_factor = speed * Friction * dt
+        local friction_factor = speed * Config.friction * dt
         if Vector.magnitude(movement_input) <= 0.3 then
             friction_factor = friction_factor * 3 -- Quick stop when no input
         end
@@ -92,19 +93,19 @@ function Player:compute_friction(movement_input, dt)
         local friction_force = Vector.scale(self.velocity, -friction_factor)
         self.acceleration = Vector.add(self.acceleration, friction_force)
     elseif Vector.magnitude(movement_input) <= 0.3 then
-        self.velocity = Vector.new(0, 0)
+        self.velocity = Vector.new()
     end
 end
 
 function Player:update_velocity()
     local next_velocity = Vector.add(self.velocity, self.acceleration)
-    self.velocity = Vector.max_scale(Vector.min_scale(next_velocity, MaxSpeed), MinSpeed)
+    self.velocity = Vector.max_scale(Vector.min_scale(next_velocity, Config.max_speed), Config.min_speed)
 end
 
 function Player:update_position()
     self.last_position.x = self.position.x
     self.last_position.y = self.position.y
-    local border = Vector.subtract(CurrentScene:dimensions(), self.dimension)
+    local border = Vector.subtract(SceneRouter:dimensions(), self.dimension)
     local next_position = Vector.add(self.position, self.velocity)
 
     self:handle_collisions(next_position, border)
@@ -122,14 +123,14 @@ end
 
 function Player:handle_turning(movement_input)
     local angle = Vector.angle_between(movement_input, self.velocity)
-    local turning_factor = (angle * TurningFactor) + 1
+    local turning_factor = (angle * angle * Config.turning_factor) + 1
     self.acceleration = Vector.multiply(self.acceleration, turning_factor)
 end
 
 function Player:handle_boost(dt)
     self.time_since_last_boost = self.time_since_last_boost + dt
     local boost = self.input:get_pressed("a")
-    if self.time_since_last_boost > BoostRechargeSeconds and not boost then
+    if self.time_since_last_boost > Config.boost_recharge_seconds and not boost then
         self.boostable = true
     end
 
@@ -137,7 +138,7 @@ function Player:handle_boost(dt)
         boost
         and self.boostable
         and Vector.magnitude(self.input:get_movement()) > self.settings.controller_deadzone then
-        local boost_acceleration = Vector.scale(Vector.normalize(self.input:get_movement()), BoostFactor)
+        local boost_acceleration = Vector.scale(Vector.normalize(self.input:get_movement()), Config.boost_factor)
         self.acceleration = Vector.add(self.acceleration, boost_acceleration)
         self.boostable = false
         self.time_since_last_boost = 0
@@ -148,33 +149,33 @@ function Player:handle_collisions(next_position, border)
     local collision_detected = false
     local horizontal_collision = false
     local vertical_collision = false
-    local normal = Vector.new(0, 0)
+    local normal = Vector.new()
 
     if next_position.x > border.x then
-        normal.x = -self.velocity.x * Damping
+        normal.x = -self.velocity.x * Config.damping
         collision_detected = true
         horizontal_collision = true
         self.velocity.x = 0
     elseif next_position.x < Origin.x then
-        normal.x = -self.velocity.x * Damping
+        normal.x = -self.velocity.x * Config.damping
         collision_detected = true
         horizontal_collision = true
         self.velocity.x = 0
     end
 
     if next_position.y > border.y then
-        normal.y = -self.velocity.y * Damping
+        normal.y = -self.velocity.y * Config.damping
         collision_detected = true
         vertical_collision = true
         self.velocity.y = 0
     elseif next_position.y < Origin.y then
-        normal.y = -self.velocity.y * Damping
+        normal.y = -self.velocity.y * Config.damping
         collision_detected = true
         vertical_collision = true
         self.velocity.y = 0
     end
 
-    if collision_detected and Vector.magnitude(normal) > BounceThreshold then
+    if collision_detected and Vector.magnitude(normal) > Config.bounce_threshold then
         if horizontal_collision then
             self.velocity.x = normal.x
         end

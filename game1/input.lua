@@ -24,7 +24,7 @@ local buttons_down = {
 ---@field boost boolean
 local Input = {
     index = nil,
-    movement = Vector.new(0, 0),
+    movement = Vector.new(),
     dpad = nil,
     startDown = false,
     buttons_down = buttons_down
@@ -112,7 +112,7 @@ function Input:get_movement()
 
         return self.movement
     else
-        return Vector.new(0, 0)
+        return Vector.new()
     end
 end
 

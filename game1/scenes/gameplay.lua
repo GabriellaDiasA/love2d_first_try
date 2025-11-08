@@ -1,5 +1,6 @@
 local Scene = require("scene")
 local Vector = require("utils.vector")
+local SceneRouter = require("scene_router")
 
 local Gameplay = {
     scene = Scene:new({ scale = Vector.new(2, 2) })
@@ -10,7 +11,7 @@ function Gameplay:update(dt)
         p:update(dt)
     end
     if Players[1].input:get_pressed("start") then
-        CurrentScene:set_scene("main_menu")
+        SceneRouter:set_scene("main_menu")
     end
 end
 

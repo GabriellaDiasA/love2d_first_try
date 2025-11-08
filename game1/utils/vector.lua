@@ -12,7 +12,9 @@ local Vector = {
 ---@param y? number
 ---@return Vector
 function Vector.new(x, y)
-    local v = { x = x, y = y } or {}
+    local horizontal = x or 0
+    local vertical = y or 0
+    local v = { x = horizontal, y = vertical }
     return v
 end
 
@@ -80,7 +82,7 @@ function Vector.scale(v, n)
         local result = Vector.multiply(v, factor)
         return result
     else
-        return Vector.new(0, 0)
+        return Vector.new()
     end
 end
 

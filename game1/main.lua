@@ -1,6 +1,7 @@
 GraphicsPath = "colored.png"
 local Player = require("player")
 local SceneRouter = require("scene_router")
+require("global_variables")
 
 function love.load()
     Players = {}
@@ -8,16 +9,17 @@ function love.load()
     for n, _ in ipairs(love.joystick.getJoysticks()) do
         Players[n] = Player:new({ joystick_index = n })
     end
+
     love.graphics.setDefaultFilter("nearest", "nearest")
     MainCanvas = love.graphics.newCanvas()
     DebugCanvas = love.graphics.newCanvas()
     TextCanvas = love.graphics.newCanvas()
     GameplayCanvas = love.graphics.newCanvas()
-    Debug = true
+    Debug = false
     Graphics = love.graphics.newImage(GraphicsPath)
     Tiles_x = math.ceil(love.graphics.getWidth() / 16) + 1
     Tiles_y = math.ceil(love.graphics.getHeight() / 16) + 1
-    CurrentScene = SceneRouter:new({ current_scene = "main_menu" })
+    SceneRouter:set_scene("main_menu")
     for _, p in ipairs(Players) do
         p:init(Graphics)
     end
@@ -26,7 +28,7 @@ function love.load()
 end
 
 function love.update(dt)
-    CurrentScene:update_scene(dt)
+    SceneRouter:update_scene(dt)
 
     for _, p in ipairs(Players) do
         p.input:update()
@@ -46,12 +48,7 @@ function love.draw()
         GameplayCanvas:renderTo(function()
             love.graphics.clear()
         end)
-        CurrentScene:draw_scene()
-        love.graphics.draw(GameplayCanvas)
-        love.graphics.draw(TextCanvas)
-        if Debug then
-            love.graphics.draw(DebugCanvas)
-        end
+        SceneRouter:draw_scene()
     end)
     love.graphics.draw(MainCanvas)
 end

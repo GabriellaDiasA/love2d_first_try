@@ -1,31 +1,38 @@
-local Menu = require("utils.menu")
-local Option = require("utils.menu.option")
-local Vector = require("utils.vector")
-local Scene = require("scene")
+local Vector    = require("utils.vector")
+local Scene     = require("scene")
+local Container = require("ui.components.container")
+local Button    = require("ui.components.button")
+local Layout    = require("ui.layout")
 
-local menu_actions = {
-    ["start_game"] = function() CurrentScene:set_scene("gameplay") end,
-    ["settings"] = function() CurrentScene:set_scene("settings") end,
-    ["quit"] = function() love.event.quit() end
-}
 
-local options = {
-    { text = "Start Game", enabled = true, name = "start_game", component = { name = "big_text" } },
-    { text = "Settings", enabled = true, name = "settings" },
-    { text = "Credits", enabled = false, name = "credits" },
-    { text = "Quit", enabled = true, name = "quit" }
-}
-
-local params = {
+local MainMenu = {
     scene = Scene:new({ scale = Vector.new(1, 1) }),
-    cursor_position = 1,
-    font = love.graphics.newFont(32, "mono"),
-    options = options,
-    menu_roll_time = 0.2,
-    time_since_last_menu_roll = 0,
-    menu_actions = menu_actions
+    elements = {
+        Button:new({ text = "Button1", width = 200, height = 80, color = { 0, 1, 0 } }),
+        Button:new({ text = "Button2", width = 200, height = 80, color = { 0, 0, 1 } }),
+        Button:new({ text = "Button3", width = 200, height = 80, color = { 1, 0, 0 } })
+    },
+    container = Container:new({ canvas = TextCanvas, position = Vector.new() })
 }
 
-local MainMenu = Menu:new(params)
+function MainMenu:load()
+    Layout.vertical_bottom(self, { margin = 10, spacing = 5 })
+    Layout.horizontal_center(self, {})
+end
+
+function MainMenu:update(dt)
+    for _, element in ipairs(self.elements) do
+        element:update(dt)
+    end
+end
+
+function MainMenu:draw()
+    self.container:render_to(function()
+        for _, element in ipairs(self.elements) do
+            element:draw()
+        end
+    end)
+    self.container:draw()
+end
 
 return MainMenu
