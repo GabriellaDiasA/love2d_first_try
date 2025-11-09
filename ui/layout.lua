@@ -1,6 +1,6 @@
 local Layout = {}
 
-function Layout.vertical(elements, opts)
+function Layout.vertical(_, elements, opts)
     local margin = opts.margin or 0
     local spacing = opts.spacing or 0
 
@@ -11,18 +11,18 @@ function Layout.vertical(elements, opts)
     end
 end
 
-function Layout.vertical_bottom(parent, opts)
+function Layout.vertical_bottom(parent, elements, opts)
     local margin = opts.margin or 0
     local spacing = opts.spacing or 0
 
     local y = parent.container:get_height() - margin
-    for _, element in ipairs(parent.elements) do
-        element.position.y = y - element:get_height()
-        y = y - element:get_height() - spacing
+    for i = #elements, 1, -1 do
+        elements[i].position.y = y - elements[i]:get_height()
+        y = y - elements[i]:get_height() - spacing
     end
 end
 
-function Layout.horizontal(elements, opts)
+function Layout.horizontal(_, elements, opts)
     local margin = opts.margin or 0
     local spacing = opts.spacing or 0
 
@@ -33,9 +33,9 @@ function Layout.horizontal(elements, opts)
     end
 end
 
-function Layout.horizontal_center(parent, _)
+function Layout.horizontal_center(parent, elements, _)
     local width = parent.container:get_width()
-    for _, element in ipairs(parent.elements) do
+    for _, element in ipairs(elements) do
         element.position.x = (width - element:get_width()) / 2
     end
 end

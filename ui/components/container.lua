@@ -13,30 +13,16 @@ Container.__index = Container
 ---@param opts table
 ---@return Container
 function Container:new(opts)
-    local c = {}
-    local dimensions = Vector.new(love.graphics.getWidth(), love.graphics.getHeight())
+    local instance = setmetatable({}, self)
 
-    if opts.width ~= nil then
-        dimensions.x = opts.width
-    end
-
-    if opts.height ~= nil then
-        dimensions.y = opts.height
-    end
-
-    if opts.canvas ~= nil then
-        c.canvas = opts.canvas
-    else
-        c.canvas = love.graphics.newCanvas(dimensions.x, dimensions.y)
-    end
+    instance:new_canvas(opts)
 
     if opts.position ~= nil then
-        c.position = opts.position
+        instance.position = Vector.new(opts.position)
     else
-        c.position = Vector.new()
+        instance.position = Vector.new()
     end
-    setmetatable(c, self)
-    return c
+    return instance
 end
 
 function Container:to_transform()
@@ -52,8 +38,14 @@ function Container:get_height()
     return self.canvas:getHeight()
 end
 
-function Container:set_canvas(canvas)
-    self.canvas = canvas
+function Container:new_canvas(opts)
+    if opts.height and opts.width then
+        self.canvas = love.graphics.newCanvas(opts.width, opts.height)
+    elseif opts.canvas then
+        self.canvas = opts.canvas
+    else
+        self.canvas = love.graphics.newCanvas(ScreenDimensions.x, ScreenDimensions.y)
+    end
 end
 
 function Container:draw()

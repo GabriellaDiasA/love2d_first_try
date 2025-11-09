@@ -19,7 +19,7 @@ function love.load()
     DebugCanvas = love.graphics.newCanvas()
     TextCanvas = love.graphics.newCanvas()
     GameplayCanvas = love.graphics.newCanvas()
-    Debug = false
+    Debug = true
     Graphics = love.graphics.newImage(GraphicsPath)
     Tiles_x = math.ceil(love.graphics.getWidth() / 16) + 1
     Tiles_y = math.ceil(love.graphics.getHeight() / 16) + 1
