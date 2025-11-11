@@ -10,9 +10,10 @@ local Container = {
 Container.__index = Container
 
 ---New container
----@param opts table
+---@param params? table
 ---@return Container
-function Container:new(opts)
+function Container:new(params)
+    local opts = params or {}
     local instance = setmetatable({}, self)
 
     instance:new_canvas(opts)

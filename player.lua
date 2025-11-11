@@ -1,7 +1,9 @@
 local Vector = require("utils.vector")
 local Config = require("player.config")
 local Settings = require("player.settings")
-local SceneRouter = require("scene_router")
+local SceneRouter = require("scenes.router")
+local Input = require("player.input")
+
 
 ---@class Player
 ---@field input Input?
@@ -22,21 +24,19 @@ local Player = {
     input_mode = "controller",
     settings = Settings:new()
 }
+Player.__index = Player
 
-local Input = require("input")
-local input = Input
 
 function Player:new(o)
     local p = o or {}
     setmetatable(p, self)
-    self.__index = self
     return p
 end
 
 function Player:init(graphics)
-    Player_tile = love.graphics.newQuad(0, 0, 16, 16, graphics)
-    self.input = input:new(self.joystick_index)
-    self:model(Player_tile)
+    local player_tile = love.graphics.newQuad(0, 0, 16, 16, graphics)
+    self.input = Input:new(self.joystick_index)
+    self:model(player_tile)
     return self
 end
 

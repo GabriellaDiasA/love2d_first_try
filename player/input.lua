@@ -1,32 +1,30 @@
 local Vector = require("utils.vector")
 
 local buttons_down = {
-        ["a"] = false,
-        ["b"] = false,
-        ["x"] = false,
-        ["y"] = false,
-        ["back"] = false,
-        ["guide"] = false,
-        ["start"] = false,
-        ["leftstick"] = false,
-        ["rightstick"] = false,
-        ["leftshoulder"] = false,
-        ["rightshoulder"] = false,
-        ["dpup"] = false,
-        ["dpdown"] = false,
-        ["dpleft"] = false,
-        ["dpright"] = false
-    }
+    ["a"] = false,
+    ["b"] = false,
+    ["x"] = false,
+    ["y"] = false,
+    ["back"] = false,
+    ["guide"] = false,
+    ["start"] = false,
+    ["leftstick"] = false,
+    ["rightstick"] = false,
+    ["leftshoulder"] = false,
+    ["rightshoulder"] = false,
+    ["dpup"] = false,
+    ["dpdown"] = false,
+    ["dpleft"] = false,
+    ["dpright"] = false
+}
 
 ---@class Input
 ---@field index number?
 ---@field movement Vector
----@field boost boolean
+---@field buttons_down table
 local Input = {
     index = nil,
     movement = Vector.new(),
-    dpad = nil,
-    startDown = false,
     buttons_down = buttons_down
 }
 
@@ -69,22 +67,26 @@ end
 function Input:get_pressed(name)
     local joystick = self:get_joystick()
     if joystick ~= nil then
-        local down = joystick:isGamepadDown(name)
-        local down_state = self:get_down(name)
-        if not down_state and down then
-            self:set_down(name, true)
-            return true
-        elseif down_state and down then
-            return false
-        elseif not down then
-            self:set_down(name, false)
-            return false
-        end
+        local down_now = joystick:isGamepadDown(name)
+        local down_before = self:get_down(name)
+        return (not down_before and down_now)
     else
-        self:set_down(name, false)
         return false
     end
-    return false
+end
+
+---Checks whether a button was recently released
+---@param name string
+---@return boolean
+function Input:get_released(name)
+    local joystick = self:get_joystick()
+    if joystick ~= nil then
+        local down_now = joystick:isGamepadDown(name)
+        local down_before = self:get_down(name)
+        return (down_before and not down_now)
+    else
+        return false
+    end
 end
 
 function Input:get_movement()

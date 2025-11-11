@@ -1,17 +1,23 @@
 local Scene = require("scene")
 local Vector = require("utils.vector")
-local SceneRouter = require("scene_router")
+local SceneRouter = require("scenes.router")
 
 local Gameplay = {
     scene = Scene:new({ scale = Vector.new(2, 2) })
 }
+
+function Gameplay:load()
+    for _, p in ipairs(Players) do
+        p:init(Graphics)
+    end
+end
 
 function Gameplay:update(dt)
     for _, p in ipairs(Players) do
         p:update(dt)
     end
     if Players[1].input:get_pressed("start") then
-        SceneRouter:set_scene("main_menu")
+        SceneRouter:next("main_menu")
     end
 end
 
