@@ -59,7 +59,7 @@ local MainMenu   = {
     },
     container = Container:new({ canvas = TextCanvas }),
     background_color = { 0.04, 0, 0.05 },
-    controls = "menu"
+    control_schema = "menu"
 }
 
 MainMenu.__index = MainMenu

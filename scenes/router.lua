@@ -1,3 +1,4 @@
+local Actions = require "scenes.Actions"
 ---Router object
 ---@class Router
 ---@field current_scene string
@@ -8,7 +9,9 @@ local Router = {
 local ScenesDirectory = "scenes."
 
 function Router:update_scene(dt)
-    self:get_scene():update(dt)
+    local scene = self:get_scene()
+    scene:update(dt)
+    Actions.update(scene.control_schema)
 end
 
 function Router:draw_scene()
@@ -50,10 +53,6 @@ function Router:get_scene()
         self:set_scene(InitialScene)
         return require(ScenesDirectory .. self.current_scene)
     end
-end
-
-function Router:control_scheme()
-    return self:get_scene().controls
 end
 
 return Router

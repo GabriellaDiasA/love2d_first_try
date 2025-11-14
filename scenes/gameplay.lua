@@ -3,7 +3,8 @@ local Vector = require("utils.vector")
 local SceneRouter = require("scenes.router")
 
 local Gameplay = {
-    scene = Scene:new({ scale = Vector.new(2, 2) })
+    scene = Scene:new({ scale = Vector.new(2, 2) }),
+    control_schema = "game"
 }
 
 function Gameplay:load()

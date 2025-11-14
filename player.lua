@@ -2,11 +2,11 @@ local Vector = require("utils.vector")
 local Config = require("player.config")
 local Settings = require("player.settings")
 local SceneRouter = require("scenes.router")
-local Input = require("player.input")
+local Joystick = require("player.controls.joystick")
 
 
 ---@class Player
----@field input Input?
+---@field input Joystick
 local Player = {
     acceleration = Vector.new(),
     velocity = Vector.new(),
@@ -19,7 +19,7 @@ local Player = {
     display = nil,
     action = "idle",
     flipped = false,
-    input = nil,
+    input = Joystick,
     joystick_index = nil,
     input_mode = "controller",
     settings = Settings:new()
@@ -35,7 +35,7 @@ end
 
 function Player:init(graphics)
     local player_tile = love.graphics.newQuad(0, 0, 16, 16, graphics)
-    self.input = Input:new(self.joystick_index)
+    self.input = Joystick:new(self.joystick_index)
     self:model(player_tile)
     return self
 end

@@ -1,5 +1,4 @@
 local Cursor = require("ui.cursor")
-local Controls = require("ui.controls")
 local Container = require("ui.components.container")
 local SceneRouter = require("scenes.router")
 
@@ -7,26 +6,37 @@ local SceneRouter = require("scenes.router")
 ---@field children table
 ---@field background_color table
 ---@field container Container
+---@field cursor Cursor
 local Menu = {
     children = {},
     background_color = {},
-    container = Container:new()
+    container = Container:new(),
+    cursor = Cursor:new()
 }
 
 function Menu:scroll(direction)
     if not self.children then return end
 
+    local axis = "vertical"
+    if direction == "left" or direction == "right" then
+        axis = "horizontal"
+    end
     local elements = self:get_interactible_children()
+    local current_element = elements[self.cursor[axis]]
 
-    elements[Cursor.index]:unfocus()
+    if current_element.cursor and current_element.focused then
+        current_element:scroll(direction)
+    else
+        current_element:unfocus()
 
-    if Cursor[direction] then Cursor[direction](Cursor, elements) end
+        if self.cursor[direction] then self.cursor[direction](self.cursor, elements) end
 
-    elements[Cursor.index]:focus()
+        elements[self.cursor[axis]]:focus()
+    end
 end
 
 function Menu:engage()
-    local index = Cursor:get_index()
+    local index = self.cursor:get_vertical()
 
     self:get_interactible_children()[index]:engage()
 end
@@ -39,8 +49,6 @@ function Menu:update(dt)
     for _, element in ipairs(self.children) do
         if element.update then element:update(dt) end
     end
-
-    Controls.update()
 end
 
 function Menu:draw()

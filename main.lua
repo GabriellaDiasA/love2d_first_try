@@ -4,6 +4,7 @@ end
 
 local Player = require("player")
 local SceneRouter = require("scenes.router")
+local MKBoard = require("player.controls.mkboard")
 require("global_variables")
 
 local function register_players()
@@ -33,8 +34,9 @@ function love.update(dt)
     SceneRouter:update_scene(dt)
 
     for _, p in ipairs(Players) do
-        p.input:update()
+        p.input:update(dt)
     end
+    MKBoard.update(dt)
 end
 
 function love.draw()
@@ -54,4 +56,8 @@ function love.draw()
         if Debug then love.graphics.draw(DebugCanvas) end
     end)
     love.graphics.draw(MainCanvas)
+end
+
+function love.keypressed(key, _, _)
+    MKBoard.register(key)
 end

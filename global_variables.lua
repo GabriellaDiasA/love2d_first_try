@@ -5,3 +5,4 @@ ScreenDimensions = Vector.new(love.graphics.getWidth(), love.graphics.getHeight(
 InitialScene = "main_menu"
 Players = {}
 GraphicsPath = "colored.png"
+BUTTON_HOLD_THRESHOLD = 150

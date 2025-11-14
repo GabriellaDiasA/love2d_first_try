@@ -1,25 +1,37 @@
+---@class Cursor
+---@field vertical number
+---@field horizontal number
 local Cursor = {
-    index = 1
+    vertical = 1,
+    horizontal = 1
 }
+Cursor.__index = Cursor
+
+function Cursor:new(params)
+    local instance = setmetatable(params or {}, Cursor)
+    instance.vertical = 1
+    instance.horizontal = 1
+    return instance
+end
 
 function Cursor:down(elements)
-    if self.index == #elements then
-        self.index = 1
+    if self.vertical == #elements then
+        self.vertical = 1
     else
-        self.index = self.index + 1
+        self.vertical = self.vertical + 1
     end
 end
 
 function Cursor:up(elements)
-    if self.index == 1 then
-        self.index = #elements
+    if self.vertical == 1 then
+        self.vertical = #elements
     else
-        self.index = self.index - 1
+        self.vertical = self.vertical - 1
     end
 end
 
-function Cursor:get_index()
-    return self.index
+function Cursor:get_vertical()
+    return self.vertical
 end
 
 return Cursor
